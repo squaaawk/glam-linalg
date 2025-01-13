@@ -1,0 +1,10 @@
+[package]
+name = "glam-linalg"
+version = "0.0.0"
+edition = "2021"
+description = "An extension to the glam library providing linear algebra methods"
+repository = "https://github.com/squaaawk/glam-linalg"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
