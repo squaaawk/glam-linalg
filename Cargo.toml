@@ -14,3 +14,18 @@ glam = "0.29.2"
 fastrand = { version = "2.3.0", default-features = false }
 approx = { version = "0.5.1", default-features = false }
 paste = "1.0.15"
+divan = "0.1.17"
+nalgebra = { version = "0.33.2", default-features = false, features = ["std"] }
+peroxide = { version = "0.39.0", default-features = false }
+
+[[bench]]
+name = "glam-linalg"
+harness = false
+
+[[bench]]
+name = "nalgebra"
+harness = false
+
+[[bench]]
+name = "peroxide"
+harness = false

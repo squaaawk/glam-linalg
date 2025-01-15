@@ -3,7 +3,7 @@ use crate::utils::*;
 use crate::*;
 
 use approx::assert_abs_diff_eq;
-use glam::dvec2;
+use glam::{dvec2, DMat2};
 
 #[test]
 fn test_eigvals2() {

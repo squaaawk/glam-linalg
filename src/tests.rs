@@ -13,10 +13,42 @@ use paste::paste;
 pub(crate) const EPS: f64 = 1e-12;
 pub(crate) const SYMMETRIC_EPS: f64 = 1e-8;
 
-const SEED: u64 = 1234;
-const N_TESTS: u64 = 10_000;
+pub(crate) fn sorted<const N: usize>(mut x: [f64; N]) -> [f64; N] {
+  x.sort_by(|a, b| a.total_cmp(b));
+  x
+}
 
-#[macro_export]
+pub(crate) fn csorted<const N: usize>(mut x: [DVec2; N]) -> [DVec2; N] {
+  x.sort_by(|a, b| a.x.total_cmp(&b.x).then(a.y.total_cmp(&b.y)));
+  x
+}
+
+pub(crate) fn assert_dvec2_eq(a: DVec2, b: DVec2, eps: f64) {
+  assert!(a.abs_diff_eq(b, eps));
+}
+
+/// The tests here are from https://math.stackexchange.com/a/894641
+pub(crate) fn assert_valid(eigvals: &[DVec2], trace: f64, trace_sq: f64, det: f64, eps: f64) {
+  // The sum of the eigenvalues should be equal to the trace
+  let sum: DVec2 = eigvals.iter().copied().sum();
+  assert_dvec2_eq(sum, complex(trace), eps);
+
+  // The sum of the eigenvalues squared should be equal to the trace of the matrix times itself
+  let sum: f64 = eigvals
+    .iter()
+    .map(|&lambda| lambda.x.powi(2) - lambda.y.powi(2))
+    .sum();
+  assert_abs_diff_eq!(sum, trace_sq, epsilon = eps);
+
+  // The product of the eigenvalues should be equal to the determinant
+  let sign: f64 = eigvals.iter().map(|&lambda| lambda.x.signum()).product();
+  let prod: f64 = eigvals.iter().map(|&lambda| lambda.length()).product();
+  assert_abs_diff_eq!(sign * prod, det, epsilon = eps);
+}
+
+const SEED: u64 = 1234;
+const N_TESTS: u64 = 100_000;
+
 macro_rules! test_dmat_rand {
   ($num:expr) => {
     paste! {
@@ -64,35 +96,4 @@ macro_rules! test_dmat_rand {
   };
 }
 
-pub(crate) fn sorted<const N: usize>(mut x: [f64; N]) -> [f64; N] {
-  x.sort_by(|a, b| a.total_cmp(b));
-  x
-}
-
-pub(crate) fn csorted<const N: usize>(mut x: [DVec2; N]) -> [DVec2; N] {
-  x.sort_by(|a, b| a.x.total_cmp(&b.x).then(a.y.total_cmp(&b.y)));
-  x
-}
-
-pub(crate) fn assert_dvec2_eq(a: DVec2, b: DVec2, eps: f64) {
-  assert!(a.abs_diff_eq(b, eps));
-}
-
-/// The tests here are from https://math.stackexchange.com/a/894641
-pub(crate) fn assert_valid(eigvals: &[DVec2], trace: f64, trace_sq: f64, det: f64, eps: f64) {
-  // The sum of the eigenvalues should be equal to the trace
-  let sum: DVec2 = eigvals.iter().copied().sum();
-  assert_dvec2_eq(sum, complex(trace), eps);
-
-  // The sum of the eigenvalues squared should be equal to the trace of the matrix times itself
-  let sum: f64 = eigvals
-    .iter()
-    .map(|&lambda| lambda.x.powi(2) - lambda.y.powi(2))
-    .sum();
-  assert_abs_diff_eq!(sum, trace_sq, epsilon = eps);
-
-  // The product of the eigenvalues should be equal to the determinant
-  let sign: f64 = eigvals.iter().map(|&lambda| lambda.x.signum()).product();
-  let prod: f64 = eigvals.iter().map(|&lambda| lambda.length()).product();
-  assert_abs_diff_eq!(sign * prod, det, epsilon = eps);
-}
+pub(crate) use test_dmat_rand;
